@@ -1,0 +1,12 @@
+<launch>
+  <!-- send model urdf to param server -->
+  <param name="tube_description" command="$(find xacro)/xacro.py '$(find gazebo_worlds)/objects/tubeBaxter.urdf.xacro'" />
+
+  <!-- the semantic description that corresponds to the URDF -->
+  <param name="tube_description_semantic" textfile="$(find gazebo_worlds)/objects/tubeOK.srdf" />
+
+  <!-- push tube_description to factory and spawn robot in gazebo -->
+  <node name="spawn_tube" pkg="gazebo" type="spawn_model" args="-urdf -param tube_description -model tube" 
+   respawn="false" output="screen" />
+</launch>
+

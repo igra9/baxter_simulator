@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <node name="baxter_sim_io" pkg="baxter_sim_io" type="baxter_sim_io"
+	respawn="false" output="screen">
+  </node>
+</launch>

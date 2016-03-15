@@ -83,6 +83,7 @@ bool Kinematics::init_grav() {
   gazebo_msgs::GetLinkProperties getlinkproperties;
 
   setlinkproperties.request.gravity_mode=0;
+
   //Load the right chain and copy them to Right specific variables
   tip_name = grav_right_name;
   if (!loadModel(result)) {
@@ -124,6 +125,7 @@ bool Kinematics::init_grav() {
   gravity_solver_r = new KDL::ChainIdSolver_RNE(grav_chain_r,
                                                 KDL::Vector(0.0, 0.0, -9.8));
 
+  //ROS_WARN("before load model 2, for tip: %s", tip_name.c_str());
   //Load the left chain and copy them to Right specific variable
   tip_name = grav_left_name;
   if (!loadModel(result)) {
@@ -161,9 +163,11 @@ bool Kinematics::init_grav() {
     set_lp_client.call(setlinkproperties);
   }
 
+  //ROS_WARN("before create gravity for: %s", tip_name.c_str());
   //Create a gravity solver for the left chain
   gravity_solver_l = new KDL::ChainIdSolver_RNE(grav_chain_l,
                                                 KDL::Vector(0.0, 0.0, -9.8));
+
   return true;
 }
 
@@ -204,6 +208,7 @@ bool Kinematics::init(std::string tip, int &no_jts) {
   nh_private.param("maxIterations", maxIterations, 1000);
   nh_private.param("epsilon", epsilon, 1e-2);
 
+  //ROS_WARN("before building solvers for: %s", tip_name.c_str());
   // Build Solvers
   fk_solver = new KDL::ChainFkSolverPos_recursive(chain);
   ik_solver_vel = new KDL::ChainIkSolverVel_pinv(chain);
@@ -272,6 +277,7 @@ bool Kinematics::readJoints(urdf::Model &robot_model) {
   link = robot_model.getLink(tip_name);
   unsigned int i = 0;
   while (link && i < num_joints) {
+    ROS_INFO_ONCE("Number of Joints: %d, for tip: %s", num_joints, tip_name.c_str());
     joint = robot_model.getJoint(link->parent_joint->name);
     if (joint->type != urdf::Joint::UNKNOWN
         && joint->type != urdf::Joint::FIXED) {
@@ -298,6 +304,7 @@ bool Kinematics::readJoints(urdf::Model &robot_model) {
     }
     link = robot_model.getLink(link->getParent()->name);
   }
+  //ROS_WARN("Finished adding joints for chain with tip: %s", tip_name.c_str());
   return true;
 }
 
@@ -467,7 +474,7 @@ bool arm_kinematics::Kinematics::getPositionFK(
   }
 
   int num_segments = chain.getNrOfSegments();
-  ROS_DEBUG("Number of Segments in the KDL chain: %d", num_segments);
+  ROS_DEBUG_ONCE("Number of Segments in the KDL chain: %d", num_segments);
   if (fk_solver->JntToCart(jnt_pos_in, p_out, num_segments) >= 0) {
     tf_pose.frame_id_ = root_name;
     tf_pose.stamp_ = ros::Time();

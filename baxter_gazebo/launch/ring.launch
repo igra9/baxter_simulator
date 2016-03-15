@@ -1,0 +1,8 @@
+<launch>
+  <!-- send model urdf to param server -->
+  <param name="chainOriginal_description" command="$(find xacro)/xacro.py '$(find gazebo_worlds)/objects/chainCylinder.urdf.xacro'" />
+  
+  <!-- push tube_description to factory and spawn robot in gazebo -->
+  <node name="spawn_chain" pkg="gazebo" type="spawn_model" args="-urdf -param chainOriginal_description -model chain0" 
+   respawn="false" output="screen" />
+</launch>

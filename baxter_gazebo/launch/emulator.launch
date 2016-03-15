@@ -1,0 +1,4 @@
+<launch>
+  <node name="baxter_emulator" pkg="baxter_sim_hardware" type="baxter_emulator" respawn="false"
+	output="screen" args="$(find baxter_sim_hardware)/images/researchsdk.png"/>
+</launch>

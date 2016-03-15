@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+  <rosparam file="$(find baxter_sim_hardware)/config/baxter_sim_controllers.yaml" command="load"/>
+
+</launch>

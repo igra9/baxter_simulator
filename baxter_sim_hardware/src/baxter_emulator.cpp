@@ -365,10 +365,10 @@ void baxter_emulator::publish(const std::string &img_path) {
  * Method to enable the robot
  */
 void baxter_emulator::enable_cb(const std_msgs::Bool &msg) {
+  ROS_INFO("Enabling the robot");
   if (msg.data && !isStopped) {
     assembly_state.enabled = true;
   }
-
   else {
     assembly_state.enabled = false;
   }
@@ -378,6 +378,7 @@ void baxter_emulator::enable_cb(const std_msgs::Bool &msg) {
   assembly_state.estop_source =
       baxter_core_msgs::AssemblyState::ESTOP_SOURCE_NONE;
   enable = assembly_state.enabled;
+  ROS_WARN("Robot enabled");
 }
 
 /**

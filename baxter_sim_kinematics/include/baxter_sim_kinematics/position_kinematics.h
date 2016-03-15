@@ -74,6 +74,8 @@ class position_kinematics {
     if (pk_ptr->init(side)) {
       return pk_ptr;
     }
+    else
+      ROS_WARN("Couldn't initialized position kinematics!! for side: %s", side.c_str());
     return poskin_ptr();
   }
 
@@ -82,6 +84,7 @@ class position_kinematics {
    * and only returns after exit or ros::shutdown is called.
    */
   void run() {
+    //ROS_WARN("Spinning for side: %s", m_limbName.c_str());
     //just do spin here (blocks until shutdown), remove while loop
     ros::spin();
 
@@ -144,7 +147,7 @@ class position_kinematics {
   ros::NodeHandle handle;
   std::string tip_name;
   std::vector<std::string> joint_names;
-  int no_jts;
+  int no_jts, num_;
 
 };
 

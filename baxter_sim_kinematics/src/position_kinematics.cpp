@@ -49,7 +49,7 @@ const int joint_id=6;//Modify this to get the FK of different joints
 bool position_kinematics::init(std::string side) {
   //Robot would be disabled initially
   is_enabled = false;
-
+  num_ = 0;
   // capture the side we are working on
   m_limbName = side;
 
@@ -96,8 +96,10 @@ bool position_kinematics::init(std::string side) {
       return false;
     }
   }
+
   no_jts = joint_names.size();
   m_kinematicsModel = arm_kinematics::Kinematics::create(tip_name, no_jts);
+
   return true;
 
 }
@@ -176,12 +178,14 @@ bool position_kinematics::IKCallback(
   res.joints.resize(req.pose_stamp.size());
   res.isValid.resize(req.pose_stamp.size());
   res.result_type.resize(req.pose_stamp.size());
+  ROS_WARN("Recieved a request of IK service #%d", num_);
   for (size_t req_index = 0; req_index < req.pose_stamp.size(); req_index++) {
-
+    //ROS_DEBUG_STREAM("Index: " << req_index << ", of: " << req.pose_stamp.size());
     res.isValid[req_index]=0;
     int valid_inp=0;
 
     if(!req.seed_angles.empty() && req.seed_mode != baxter_core_msgs::SolvePositionIKRequest::SEED_CURRENT) {
+      ROS_WARN_STREAM("The angles are not empty!, request #" << req_index);
       res.isValid[req_index] = m_kinematicsModel->getPositionIK(
           req.pose_stamp[req_index], req.seed_angles[req_index], &joint_pose);
       res.joints[req_index].name.resize(joint_pose.name.size());
@@ -190,6 +194,7 @@ bool position_kinematics::IKCallback(
     }
 
     if((!res.isValid[req_index]) && req.seed_mode != baxter_core_msgs::SolvePositionIKRequest::SEED_USER) {
+      ROS_ERROR_STREAM("Response is not valid, request #" << req_index);
       res.isValid[req_index] = m_kinematicsModel->getPositionIK(
           req.pose_stamp[req_index], joint, &joint_pose);
       res.joints[req_index].name.resize(joint_pose.name.size());
@@ -210,7 +215,10 @@ bool position_kinematics::IKCallback(
     else
       res.result_type[req_index]=baxter_core_msgs::SolvePositionIKResponse::RESULT_INVALID;
   }
+  num_ = num_ + 1;
+  ROS_DEBUG("----------- IK call finished -------------");
   loop_rate.sleep();
+  return true;
 }
 
 }  //namespace
@@ -249,9 +257,11 @@ int main(int argc, char* argv[]) {
 
   //test to see if pointer is valid
   if (g_pNode) {
+    //ROS_WARN("Valid pointer for side: %s", side.c_str());
     g_pNode->run();
   }
-
+  else
+    ROS_ERROR("Pointer invalid!! for side: %s", side.c_str());
   //position_kinematics calls ros::shutdown upon exit, just return here
   return 0;
 }

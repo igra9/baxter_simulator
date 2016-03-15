@@ -75,8 +75,11 @@ class Kinematics {
   static Ptr create(std::string tip_name, int &no_jts) {
     Ptr parm_kinematics = Ptr(new Kinematics());
     if (parm_kinematics->init(tip_name, no_jts)) {
+      ROS_INFO("All init finished for tip: %s", tip_name.c_str());
       return parm_kinematics;
     }
+    else
+      ROS_ERROR("Couldn7t initialize for tip: %s", tip_name.c_str());
     return Ptr();
   }
 
